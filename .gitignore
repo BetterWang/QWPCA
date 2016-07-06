@@ -1,7 +1,11 @@
 bin/
+MC
+PbPb
+PbPb2015
+pPb
 test/*
 !test/qw*.py
 !test/crab_*.py
-QVector
+!test/run*.sh
 *.pyc
 tmp/

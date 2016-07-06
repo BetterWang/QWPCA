@@ -1,9 +1,4 @@
-#include <correlations/Types.hh>
-#include <correlations/Result.hh>
-#include <correlations/QVector.hh>
-#include <correlations/closed/FromQVector.hh>
 // for the fuxking pp rereco centrality
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include <complex>
 #include <vector>
@@ -31,10 +26,10 @@ typedef struct QWEvent_ {
 } QWEvent;
 
 
-class QWQVector : public edm::EDAnalyzer {
+class QWPCA : public edm::EDAnalyzer {
 public:
-	explicit QWQVector(const edm::ParameterSet&);
-	~QWQVector();
+	explicit QWPCA(const edm::ParameterSet&);
+	~QWPCA();
 
 private:
 	virtual void beginJob();
