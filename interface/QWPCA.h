@@ -57,7 +57,6 @@ private:
 
 	edm::EDGetTokenT<int>                           centralityToken_;
 	edm::EDGetTokenT<reco::TrackCollection>		trackToken_;
-	std::vector<int>				algoParameters_;
 	edm::EDGetTokenT<reco::VertexCollection>	vertexToken_;
 	edm::InputTag					fweight_;
 

@@ -33,7 +33,6 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	, maxPt_(iConfig.getUntrackedParameter<double>("maxPt", 3.0))
 	, centralityToken_( consumes<int>(iConfig.getParameter<edm::InputTag>("centrality")) )
 	, trackToken_(consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackTag")))
-	, algoParameters_(iConfig.getParameter<std::vector<int> >("algoParameters"))
 	, vertexToken_( consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc")) )
 	, fweight_( iConfig.getUntrackedParameter<edm::InputTag>("fweight", std::string("NA")) )
 {
@@ -266,8 +265,11 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if ( !itTrack->quality(reco::TrackBase::highPurity) ) continue;
 		if ( itTrack->pt() > maxPt_ or itTrack->pt() < minPt_ ) continue;
 		if ( itTrack->eta() > maxEta_ or itTrack->eta() < minEta_ ) continue;
-//		if ( itTrack->numberOfValidHits() < 11 ) continue;
-//		if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) continue;
+		int nHits = itTrack->numberOfValidHits();
+		if ( itTrack->pt() > 2.4 and nHits < 11 ) continue;
+		if ( itTrack->pt() < 2.4 and nHits!=3 and nHits!=4 and nHits!=5 and nHits!=6) continue;
+
+		if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) continue;
 		if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) continue;
 		if ( itTrack->hitPattern().pixelLayersWithMeasurement() == 0 ) continue;
 
@@ -279,7 +281,11 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
 		if ( fabs( dz/dzerror ) > dzdzerror_ ) continue;
 
-		if ( algoParameters_.size() != 0 and find( algoParameters_.begin(), algoParameters_.end(), itTrack->originalAlgo() ) == algoParameters_.end() ) continue;
+		if ( itTrack->originalAlgo() != 4 and
+			itTrack->originalAlgo() != 5 and
+			itTrack->originalAlgo() != 6 and
+			itTrack->originalAlgo() != 7
+		) continue;
 
 		t.Charge[t.Mult] = itTrack->charge();
 		t.Pt[t.Mult] = itTrack->pt();
