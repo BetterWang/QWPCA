@@ -271,7 +271,13 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) continue;
 		if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) continue;
-		if ( itTrack->hitPattern().pixelLayersWithMeasurement() == 0 ) continue;
+//		if ( itTrack->hitPattern().pixelLayersWithMeasurement() == 0 ) continue;
+
+		if ( itTrack->originalAlgo() != 4 and
+			itTrack->originalAlgo() != 5 and
+			itTrack->originalAlgo() != 6 and
+			itTrack->originalAlgo() != 7
+		) continue;
 
 		double d0 = -1.* itTrack->dxy(v1);
 		double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
@@ -280,12 +286,6 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		double dz=itTrack->dz(v1);
 		double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
 		if ( fabs( dz/dzerror ) > dzdzerror_ ) continue;
-
-		if ( itTrack->originalAlgo() != 4 and
-			itTrack->originalAlgo() != 5 and
-			itTrack->originalAlgo() != 6 and
-			itTrack->originalAlgo() != 7
-		) continue;
 
 		t.Charge[t.Mult] = itTrack->charge();
 		t.Pt[t.Mult] = itTrack->pt();
