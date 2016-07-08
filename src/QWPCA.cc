@@ -258,34 +258,74 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	Handle<TrackCollection> tracks;
 	iEvent.getByToken(trackToken_,tracks);
 
+//	std::cout << " tracks->size() = " << tracks->size() << std::endl;
 	for(TrackCollection::const_iterator itTrack = tracks->begin();
 			itTrack != tracks->end();
 			++itTrack) {
-		if ( itTrack->charge() == 0 ) continue;
-		if ( !itTrack->quality(reco::TrackBase::highPurity) ) continue;
-		if ( itTrack->pt() > maxPt_ or itTrack->pt() < minPt_ ) continue;
-		if ( itTrack->eta() > maxEta_ or itTrack->eta() < minEta_ ) continue;
+		if ( itTrack->charge() == 0 ) {
+//			std::cout << __LINE__ << std::endl;
+			continue;
+		}
+		if ( !itTrack->quality(reco::TrackBase::highPurity) ) {
+//			std::cout << __LINE__ << std::endl;
+			continue;
+		}
+		if ( itTrack->pt() > maxPt_ or itTrack->pt() < minPt_ ) {
+//			std::cout << __LINE__ << std::endl;
+			continue;
+		}
+		if ( itTrack->eta() > maxEta_ or itTrack->eta() < minEta_ ) {
+//			std::cout << __LINE__ << std::endl;
+			continue;
+		}
+		bool bPix = false;
 		int nHits = itTrack->numberOfValidHits();
-		if ( itTrack->pt() > 2.4 and nHits < 11 ) continue;
-		if ( itTrack->pt() < 2.4 and nHits!=3 and nHits!=4 and nHits!=5 and nHits!=6) continue;
+		if ( nHits < 11 ) {
+			if ( itTrack->pt() < 2.4 and (nHits==3 or nHits==4 or nHits==5 or nHits==6) ) {
+//				std::cout << __LINE__ << "\tPix" << std::endl;
+				bPix = true;
+			} else {
+//				std::cout << __LINE__ << std::endl;
+				continue;
+			}
+		}
 
-		if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) continue;
-		if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) continue;
-//		if ( itTrack->hitPattern().pixelLayersWithMeasurement() == 0 ) continue;
+		if ( not bPix ) {
+			if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) {
+//				std::cout << __LINE__ << std::endl;
+				continue;
 
-		if ( itTrack->originalAlgo() != 4 and
-			itTrack->originalAlgo() != 5 and
-			itTrack->originalAlgo() != 6 and
-			itTrack->originalAlgo() != 7
-		) continue;
+			}
+			if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) {
+//				std::cout << __LINE__ << std::endl;
+				continue;
 
-		double d0 = -1.* itTrack->dxy(v1);
-		double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
-		if ( fabs( d0/derror ) > d0d0error_ ) continue;
+			}
+//			if ( itTrack->hitPattern().pixelLayersWithMeasurement() == 0 ) continue; // CME condition
+			if (
+				itTrack->originalAlgo() != 4 and
+				itTrack->originalAlgo() != 5 and
+				itTrack->originalAlgo() != 6 and
+				itTrack->originalAlgo() != 7
+			) {
+//				std::cout << __LINE__ << std::endl;
+				continue;
+			}
 
-		double dz=itTrack->dz(v1);
-		double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
-		if ( fabs( dz/dzerror ) > dzdzerror_ ) continue;
+			double d0 = -1.* itTrack->dxy(v1);
+			double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
+			if ( fabs( d0/derror ) > d0d0error_ ) {
+//				std::cout << __LINE__ << std::endl;
+				continue;
+			}
+
+			double dz=itTrack->dz(v1);
+			double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
+			if ( fabs( dz/dzerror ) > dzdzerror_ ) {
+//				std::cout << __LINE__ << std::endl;
+				continue;
+			}
+		}
 
 		t.Charge[t.Mult] = itTrack->charge();
 		t.Pt[t.Mult] = itTrack->pt();
@@ -301,6 +341,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		t.Mult++;
 	}
+//	std::cout << " t.Mult = " << t.Mult << std::endl;
 
 	return;
 }

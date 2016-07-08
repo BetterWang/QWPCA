@@ -6,7 +6,6 @@
 #include "TTree.h"
 #include "TH2D.h"
 
-#pragma link C++ class std::vector< std::complex<double> >+;
 
 typedef std::complex<double> Complex;
 // event structure
