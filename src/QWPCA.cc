@@ -240,7 +240,6 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	double vz = recoVertices[primaryvtx].z();
 	if (fabs(vz) < minvz_ || fabs(vz) > maxvz_) {
-		//std::cout << __LINE__ << std::endl;
 		return;
 	}
 	t.vz = vz;
@@ -258,71 +257,53 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	Handle<TrackCollection> tracks;
 	iEvent.getByToken(trackToken_,tracks);
 
-//	std::cout << " tracks->size() = " << tracks->size() << std::endl;
 	for(TrackCollection::const_iterator itTrack = tracks->begin();
 			itTrack != tracks->end();
 			++itTrack) {
 		if ( itTrack->charge() == 0 ) {
-//			std::cout << __LINE__ << std::endl;
 			continue;
 		}
 		if ( !itTrack->quality(reco::TrackBase::highPurity) ) {
-//			std::cout << __LINE__ << std::endl;
 			continue;
 		}
 		if ( itTrack->pt() > maxPt_ or itTrack->pt() < minPt_ ) {
-//			std::cout << __LINE__ << std::endl;
 			continue;
 		}
 		if ( itTrack->eta() > maxEta_ or itTrack->eta() < minEta_ ) {
-//			std::cout << __LINE__ << std::endl;
 			continue;
 		}
 		bool bPix = false;
 		int nHits = itTrack->numberOfValidHits();
-		if ( nHits < 11 ) {
-			if ( itTrack->pt() < 2.4 and (nHits==3 or nHits==4 or nHits==5 or nHits==6) ) {
-//				std::cout << __LINE__ << "\tPix" << std::endl;
-				bPix = true;
-			} else {
-//				std::cout << __LINE__ << std::endl;
-				continue;
-			}
-		}
+		if ( itTrack->pt() < 2.4 and (nHits==3 or nHits==4 or nHits==5 or nHits==6) ) bPix = true;
 
 		if ( not bPix ) {
+			if ( nHits < 11 ) continue;
 			if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) {
-//				std::cout << __LINE__ << std::endl;
 				continue;
 
 			}
 			if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) {
-//				std::cout << __LINE__ << std::endl;
 				continue;
 
 			}
-//			if ( itTrack->hitPattern().pixelLayersWithMeasurement() == 0 ) continue; // CME condition
-			if (
+			if ( 	itTrack->pt() > 2.4 and
 				itTrack->originalAlgo() != 4 and
 				itTrack->originalAlgo() != 5 and
 				itTrack->originalAlgo() != 6 and
 				itTrack->originalAlgo() != 7
 			) {
-//				std::cout << __LINE__ << std::endl;
 				continue;
 			}
 
 			double d0 = -1.* itTrack->dxy(v1);
 			double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
 			if ( fabs( d0/derror ) > d0d0error_ ) {
-//				std::cout << __LINE__ << std::endl;
 				continue;
 			}
 
 			double dz=itTrack->dz(v1);
 			double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
 			if ( fabs( dz/dzerror ) > dzdzerror_ ) {
-//				std::cout << __LINE__ << std::endl;
 				continue;
 			}
 		}
