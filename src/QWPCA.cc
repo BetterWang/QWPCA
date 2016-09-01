@@ -33,7 +33,6 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	, maxPt_(iConfig.getUntrackedParameter<double>("maxPt", 3.0))
 	, centralityToken_( consumes<int>(iConfig.getParameter<edm::InputTag>("centrality")) )
 	, trackToken_(consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackTag")))
-	, algoParameters_(iConfig.getParameter<std::vector<int> >("algoParameters"))
 	, vertexToken_( consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc")) )
 	, fweight_( iConfig.getUntrackedParameter<edm::InputTag>("fweight", std::string("NA")) )
 {
@@ -389,7 +388,6 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	double vz = recoVertices[primaryvtx].z();
 	if (fabs(vz) < minvz_ || fabs(vz) > maxvz_) {
-		//std::cout << __LINE__ << std::endl;
 		return;
 	}
 	t.vz = vz;
@@ -428,6 +426,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		t.Mult++;
 	}
+//	std::cout << " t.Mult = " << t.Mult << std::endl;
 
 	return;
 }

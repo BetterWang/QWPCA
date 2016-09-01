@@ -8,7 +8,6 @@ QWPCA = cms.EDAnalyzer('QWPCA'
 		, maxPt = cms.untracked.double(3.0)
 		, centrality = cms.InputTag("centralityBin", "HFtowers")
 		, trackTag = cms.untracked.InputTag('hiGeneralAndPixelTracks')
-		, algoParameters = cms.vint32(4,5,6,7)
 		, vertexSrc = cms.untracked.InputTag('hiSelectedVertex', "")
 #		, fweight_ = cms.untracked.InputTag('PbPb_dijet_TT_5TeV_v2.root')
 		, pterrorpt = cms.untracked.double(0.1)

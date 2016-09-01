@@ -6,7 +6,6 @@
 #include "TTree.h"
 #include "TH2D.h"
 
-#pragma link C++ class std::vector< std::complex<double> >+;
 
 typedef std::complex<double> Complex;
 // event structure
@@ -60,7 +59,6 @@ private:
 
 	edm::EDGetTokenT<int>                           centralityToken_;
 	edm::EDGetTokenT<reco::TrackCollection>		trackToken_;
-	std::vector<int>				algoParameters_;
 	edm::EDGetTokenT<reco::VertexCollection>	vertexToken_;
 	edm::InputTag					fweight_;
 
