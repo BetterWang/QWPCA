@@ -46,6 +46,9 @@ private:
 	void analyzeMC(const edm::Event&, const edm::EventSetup&);
 //	int  getNoffCent(const edm::Event&, const edm::EventSetup&, int&);
 
+	bool TrackQuality_ppReco(const reco::TrackCollection::const_iterator&, const reco::VertexCollection&);
+	bool TrackQuality_HIReco(const reco::TrackCollection::const_iterator&, const reco::VertexCollection&);
+	bool TrackQuality_Pixel(const reco::TrackCollection::const_iterator&, const reco::VertexCollection&);
 	void overRide();
 
 	bool bGen_;
@@ -61,6 +64,8 @@ private:
 	edm::EDGetTokenT<reco::VertexCollection>	vertexToken_;
 	edm::InputTag					fweight_;
 
+	enum	TrackCut {trackUndefine = 0, ppReco = 1, HIReco, Pixel};
+	TrackCut sTrackQuality;
 	double	dzdzerror_;
 	double	d0d0error_;
 	double	pterrorpt_;

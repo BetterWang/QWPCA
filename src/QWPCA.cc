@@ -49,6 +49,16 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	minCent_ = iConfig.getUntrackedParameter<int>("minCent", -1);
 	maxCent_ = iConfig.getUntrackedParameter<int>("maxCent", 500);
 
+	if ( trackTag_.label() == "hiGeneralTracks" ) {
+		sTrackQuality = HIReco;
+	} else if ( trackTag_.label() == "generalTracks" ) {
+		sTrackQuality = ppReco;
+	} else if ( trackTag_.label() == "hiGeneralAndPixelTracks" ) {
+		sTrackQuality = Pixel;
+	} else {
+		sTrackQuality = trackUndefine;
+	}
+	cout << "!!! using Track cuts " << sTrackQuality << endl;
 	std::string streff = fweight_.label();
 	if ( streff == std::string("NA") ) {
 		std::cout << "!!! eff NA" << std::endl;
@@ -59,7 +69,28 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 		if ( bEff_ ) {
 			std::cout << "!!! Apply Eff correction" << std::endl;
 			for ( int i = 0; i < 20; i++ ) {
-				if ( streff == std::string("Hydjet_eff_mult_v1.root") ) {
+				if ( streff == string("PbPb_MB_TT_5TeV_v2.root") or streff == string("PbPb_dijet_TT_5TeV_v2.root") ) {
+					TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_0_5");
+					for ( int c = 0; c < 10; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("rTotalEff3D_5_10");
+					for ( int c = 10; c < 20; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("rTotalEff3D_10_30");
+					for ( int c = 20; c < 60; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("rTotalEff3D_30_50");
+					for ( int c = 60; c < 100; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("rTotalEff3D_50_100");
+					for ( int c = 100; c < 200; c++ ) {
+						hEff_cbin[c] = h;
+					}
+				} else if ( streff == std::string("Hydjet_eff_mult_v1.root") ) {
 					TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_1");
 					for ( int c = 0; c < 200; c++ ) {
 						hEff_cbin[c] = h;
@@ -217,6 +248,127 @@ void QWPCA::overRide()
 //	return cent;
 //}
 //////////////////
+///
+bool
+QWPCA::TrackQuality_ppReco(const reco::TrackCollection::const_iterator& itTrack, const reco::VertexCollection& recoVertices)
+{
+        if ( itTrack->charge() == 0 ) {
+                return false;
+        }
+        if ( !itTrack->quality(reco::TrackBase::highPurity) ) {
+                return false;
+        }
+        if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) {
+                return false;
+        }
+	int primaryvtx = 0;
+	math::XYZPoint v1( recoVertices[primaryvtx].position().x(), recoVertices[primaryvtx].position().y(), recoVertices[primaryvtx].position().z() );
+	double vxError = recoVertices[primaryvtx].xError();
+	double vyError = recoVertices[primaryvtx].yError();
+	double vzError = recoVertices[primaryvtx].zError();
+        double d0 = -1.* itTrack->dxy(v1);
+        double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
+        if ( fabs( d0/derror ) > d0d0error_ ) {
+                return false;
+        }
+        double dz=itTrack->dz(v1);
+        double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
+        if ( fabs( dz/dzerror ) > dzdzerror_ ) {
+                return false;
+        }
+        return true;
+}
+
+///
+bool
+QWPCA::TrackQuality_HIReco(const reco::TrackCollection::const_iterator& itTrack, const reco::VertexCollection& recoVertices)
+{
+	if ( itTrack->charge() == 0 ) return false;
+	if ( !itTrack->quality(reco::TrackBase::highPurity) ) return false;
+	if ( fabs(itTrack->eta()) > 2.4 ) return false;
+	if ( itTrack->numberOfValidHits() < 11 ) return false;
+	if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) {
+		return false;
+	}
+	if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) {
+		return false;
+	}
+	if (
+		itTrack->originalAlgo() != 4 and
+		itTrack->originalAlgo() != 5 and
+		itTrack->originalAlgo() != 6 and
+		itTrack->originalAlgo() != 7
+	) {
+		return false;
+	}
+
+	int primaryvtx = 0;
+	math::XYZPoint v1( recoVertices[primaryvtx].position().x(), recoVertices[primaryvtx].position().y(), recoVertices[primaryvtx].position().z() );
+	double vxError = recoVertices[primaryvtx].xError();
+	double vyError = recoVertices[primaryvtx].yError();
+	double vzError = recoVertices[primaryvtx].zError();
+	double d0 = -1.* itTrack->dxy(v1);
+	double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
+	if ( fabs( d0/derror ) > d0d0error_ ) {
+		return false;
+	}
+
+	double dz=itTrack->dz(v1);
+	double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
+	if ( fabs( dz/dzerror ) > dzdzerror_ ) {
+		return false;
+	}
+	return true;
+}
+
+///
+bool
+QWPCA::TrackQuality_Pixel(const reco::TrackCollection::const_iterator& itTrack, const reco::VertexCollection& recoVertices)
+{
+	if ( itTrack->charge() == 0 ) return false;
+	if ( !itTrack->quality(reco::TrackBase::highPurity) ) return false;
+	if ( fabs(itTrack->eta()) > 2.4 ) return false;
+	bool bPix = false;
+	int nHits = itTrack->numberOfValidHits();
+//	std::cout << __LINE__ << "\tnHits = " << nHits << std::endl;
+	if ( itTrack->pt() < 2.4 and (nHits==3 or nHits==4 or nHits==5 or nHits==6) ) bPix = true;
+	if ( not bPix ) {
+		if ( nHits < 11 ) return false;
+		if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) {
+			return false;
+		}
+		if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) {
+			return false;
+		}
+		if (
+			itTrack->originalAlgo() != 4 and
+			itTrack->originalAlgo() != 5 and
+			itTrack->originalAlgo() != 6 and
+			itTrack->originalAlgo() != 7
+		) {
+			return false;
+		}
+
+		int primaryvtx = 0;
+		math::XYZPoint v1( recoVertices[primaryvtx].position().x(), recoVertices[primaryvtx].position().y(), recoVertices[primaryvtx].position().z() );
+		double vxError = recoVertices[primaryvtx].xError();
+		double vyError = recoVertices[primaryvtx].yError();
+		double vzError = recoVertices[primaryvtx].zError();
+		double d0 = -1.* itTrack->dxy(v1);
+		double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
+		if ( fabs( d0/derror ) > d0d0error_ ) {
+			return false;
+		}
+
+		double dz=itTrack->dz(v1);
+		double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
+		if ( fabs( dz/dzerror ) > dzdzerror_ ) {
+			return false;
+		}
+	}
+	return true;
+}
+///
 void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 	using namespace edm;
@@ -234,10 +386,6 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			});
 
 	int primaryvtx = 0;
-	math::XYZPoint v1( recoVertices[primaryvtx].position().x(), recoVertices[primaryvtx].position().y(), recoVertices[primaryvtx].position().z() );
-	double vxError = recoVertices[primaryvtx].xError();
-	double vyError = recoVertices[primaryvtx].yError();
-	double vzError = recoVertices[primaryvtx].zError();
 
 	double vz = recoVertices[primaryvtx].z();
 	if (fabs(vz) < minvz_ || fabs(vz) > maxvz_) {
@@ -262,24 +410,9 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for(TrackCollection::const_iterator itTrack = tracks->begin();
 			itTrack != tracks->end();
 			++itTrack) {
-		if ( itTrack->charge() == 0 ) continue;
-		if ( !itTrack->quality(reco::TrackBase::highPurity) ) continue;
-		if ( itTrack->pt() > maxPt_ or itTrack->pt() < minPt_ ) continue;
-		if ( itTrack->eta() > maxEta_ or itTrack->eta() < minEta_ ) continue;
-//		if ( itTrack->numberOfValidHits() < 11 ) continue;
-//		if ( itTrack->normalizedChi2() / itTrack->hitPattern().trackerLayersWithMeasurement() > 0.15 ) continue;
-		if ( itTrack->ptError()/itTrack->pt() > pterrorpt_ ) continue;
-		if ( itTrack->hitPattern().pixelLayersWithMeasurement() == 0 ) continue;
-
-		double d0 = -1.* itTrack->dxy(v1);
-		double derror=sqrt(itTrack->dxyError()*itTrack->dxyError()+vxError*vyError);
-		if ( fabs( d0/derror ) > d0d0error_ ) continue;
-
-		double dz=itTrack->dz(v1);
-		double dzerror=sqrt(itTrack->dzError()*itTrack->dzError()+vzError*vzError);
-		if ( fabs( dz/dzerror ) > dzdzerror_ ) continue;
-
-		if ( algoParameters_.size() != 0 and find( algoParameters_.begin(), algoParameters_.end(), itTrack->originalAlgo() ) == algoParameters_.end() ) continue;
+		if ( sTrackQuality == HIReco and not TrackQuality_HIReco(itTrack, recoVertices) ) continue;
+		else if ( sTrackQuality == ppReco and not TrackQuality_ppReco(itTrack, recoVertices) ) continue;
+		else if ( sTrackQuality == Pixel  and not TrackQuality_Pixel (itTrack, recoVertices) ) continue;
 
 		t.Charge[t.Mult] = itTrack->charge();
 		t.Pt[t.Mult] = itTrack->pt();
