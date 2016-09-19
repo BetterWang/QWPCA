@@ -24,6 +24,7 @@
 
 #include "QWAna/QWPCA/interface/QWPCA.h"
 
+using namespace std;
 
 QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	  bGen_(iConfig.getUntrackedParameter<bool>("bGen", false))
@@ -32,6 +33,7 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	, minPt_(iConfig.getUntrackedParameter<double>("minPt", 1.0))
 	, maxPt_(iConfig.getUntrackedParameter<double>("maxPt", 3.0))
 	, centralityToken_( consumes<int>(iConfig.getParameter<edm::InputTag>("centrality")) )
+	, trackTag_(iConfig.getUntrackedParameter<edm::InputTag>("trackTag"))
 	, trackToken_(consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackTag")))
 	, vertexToken_( consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc")) )
 	, fweight_( iConfig.getUntrackedParameter<edm::InputTag>("fweight", std::string("NA")) )
@@ -92,6 +94,27 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 				} else if ( streff == std::string("Hydjet_eff_mult_v1.root") ) {
 					TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_1");
 					for ( int c = 0; c < 200; c++ ) {
+						hEff_cbin[c] = h;
+					}
+				} else if ( streff == std::string("EffCorrectionsPixel_TT_pt_0_10_v2.root") ) {
+					TH2D * h = (TH2D*) fEffFak->Get("Eff_0_5");
+					for ( int c = 0; c < 10; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("Eff_5_10");
+					for ( int c = 10; c < 20; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("Eff_10_30");
+					for ( int c = 20; c < 60; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("Eff_30_50");
+					for ( int c = 60; c < 100; c++ ) {
+						hEff_cbin[c] = h;
+					}
+					h = (TH2D*) fEffFak->Get("Eff_50_100");
+					for ( int c = 100; c < 200; c++ ) {
 						hEff_cbin[c] = h;
 					}
 				}
