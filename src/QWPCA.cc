@@ -69,54 +69,52 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 		std::cout << "!!! Using particle weight " << streff << std::endl;
 		if ( bEff_ ) {
 			std::cout << "!!! Apply Eff correction" << std::endl;
-			for ( int i = 0; i < 20; i++ ) {
-				if ( streff == string("PbPb_MB_TT_5TeV_v2.root") or streff == string("PbPb_dijet_TT_5TeV_v2.root") ) {
-					TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_0_5");
-					for ( int c = 0; c < 10; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("rTotalEff3D_5_10");
-					for ( int c = 10; c < 20; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("rTotalEff3D_10_30");
-					for ( int c = 20; c < 60; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("rTotalEff3D_30_50");
-					for ( int c = 60; c < 100; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("rTotalEff3D_50_100");
-					for ( int c = 100; c < 200; c++ ) {
-						hEff_cbin[c] = h;
-					}
-				} else if ( streff == std::string("Hydjet_eff_mult_v1.root") ) {
-					TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_1");
-					for ( int c = 0; c < 200; c++ ) {
-						hEff_cbin[c] = h;
-					}
-				} else if ( streff == std::string("EffCorrectionsPixel_TT_pt_0_10_v2.root") ) {
-					TH2D * h = (TH2D*) fEffFak->Get("Eff_0_5");
-					for ( int c = 0; c < 10; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("Eff_5_10");
-					for ( int c = 10; c < 20; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("Eff_10_30");
-					for ( int c = 20; c < 60; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("Eff_30_50");
-					for ( int c = 60; c < 100; c++ ) {
-						hEff_cbin[c] = h;
-					}
-					h = (TH2D*) fEffFak->Get("Eff_50_100");
-					for ( int c = 100; c < 200; c++ ) {
-						hEff_cbin[c] = h;
-					}
+			if ( streff == string("PbPb_MB_TT_5TeV_v2.root") or streff == string("PbPb_dijet_TT_5TeV_v2.root") ) {
+				TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_0_5");
+				for ( int c = 0; c < 10; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_5_10");
+				for ( int c = 10; c < 20; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_10_30");
+				for ( int c = 20; c < 60; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_30_50");
+				for ( int c = 60; c < 100; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_50_100");
+				for ( int c = 100; c < 200; c++ ) {
+					hEff_cbin[c] = h;
+				}
+			} else if ( streff == std::string("Hydjet_eff_mult_v1.root") ) {
+				TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_1");
+				for ( int c = 0; c < 200; c++ ) {
+					hEff_cbin[c] = h;
+				}
+			} else if ( streff == std::string("EffCorrectionsPixel_TT_pt_0_10_v2.root") ) {
+				TH2D * h = (TH2D*) fEffFak->Get("Eff_0_5");
+				for ( int c = 0; c < 10; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("Eff_5_10");
+				for ( int c = 10; c < 20; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("Eff_10_30");
+				for ( int c = 20; c < 60; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("Eff_30_50");
+				for ( int c = 60; c < 100; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("Eff_50_100");
+				for ( int c = 100; c < 200; c++ ) {
+					hEff_cbin[c] = h;
 				}
 			}
 			std::cout << "!!! eff histo done" << std::endl;
