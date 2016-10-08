@@ -457,7 +457,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //////////////////
-void QWPCA::analyzeMC(const edm::Event&, const edm::EventSetup&)
+void QWPCA::analyzeMC(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 	using namespace edm;
 	using namespace reco;
@@ -500,9 +500,9 @@ void QWPCA::analyzeMC(const edm::Event&, const edm::EventSetup&)
 			++itTrack) {
 
 		if ( itTrack->status()!=1 ) continue;
-		if ( itTrack->charge() == 0 ) return false;
-		if ( itTrack->pt() < minPt_ or itTrack->pt() > maxPt_ ) return false;
-		if ( fabs(itTrack->eta()) > 2.4 ) return false;
+		if ( itTrack->charge() == 0 ) continue;
+		if ( itTrack->pt() < minPt_ or itTrack->pt() > maxPt_ ) continue;
+		if ( fabs(itTrack->eta()) > 2.4 ) continue;
 
 		t.Charge[t.Mult] = itTrack->charge();
 		t.Pt[t.Mult] = itTrack->pt();
