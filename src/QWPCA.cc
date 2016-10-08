@@ -459,6 +459,64 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //////////////////
 void QWPCA::analyzeMC(const edm::Event&, const edm::EventSetup&)
 {
+	using namespace edm;
+	using namespace reco;
+
+	t.Mult = 0;
+
+	Handle<VertexCollection> vertexCollection;
+	iEvent.getByToken(vertexToken_, vertexCollection);
+	VertexCollection recoVertices = *vertexCollection;
+	if ( recoVertices.size() < 1 ) return;
+	sort(recoVertices.begin(), recoVertices.end(), [](const reco::Vertex &a, const reco::Vertex &b){
+			if ( a.tracksSize() == b.tracksSize() ) return a.chi2() < b.chi2() ? true:false;
+			return a.tracksSize() > b.tracksSize() ? true:false;
+			});
+
+	int primaryvtx = 0;
+
+	double vz = recoVertices[primaryvtx].z();
+	if (fabs(vz) < minvz_ || fabs(vz) > maxvz_) {
+		return;
+	}
+	t.vz = vz;
+
+	// centrality
+
+	edm::Handle<int> ch;
+	iEvent.getByToken(centralityToken_,ch);
+	t.Cent = *(ch.product());
+	if ( t.Cent < 0 or t.Cent >= 200 ) {
+		return;
+	}
+
+	// track
+	Handle< std::vector<GenParticle> > tracks;
+	iEvent.getByToken(trackToken_,tracks);
+
+
+	for(std::vector<GenParticle>::const_iterator itTrack = tracks->begin();
+			itTrack != tracks->end();
+			++itTrack) {
+
+		if ( itTrack->status()!=1 ) continue;
+		if ( itTrack->charge() == 0 ) return false;
+		if ( itTrack->pt() < minPt_ or itTrack->pt() > maxPt_ ) return false;
+		if ( fabs(itTrack->eta()) > 2.4 ) return false;
+
+		t.Charge[t.Mult] = itTrack->charge();
+		t.Pt[t.Mult] = itTrack->pt();
+		t.Eta[t.Mult] = itTrack->eta();
+		t.Phi[t.Mult] = itTrack->phi();
+
+		t.weight[t.Mult] = 1.0;
+
+		t.Mult++;
+	}
+
+
+
+
 	return;
 }
 
