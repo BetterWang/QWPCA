@@ -275,6 +275,7 @@ QWPCA::TrackQuality_ppReco(const reco::TrackCollection::const_iterator& itTrack,
         if ( itTrack->charge() == 0 ) {
                 return false;
         }
+	if ( fabs(itTrack->eta()) > 2.4 ) return false;
 	if ( itTrack->pt() < minPt_ or itTrack->pt() > maxPt_ ) return false;
         if ( !itTrack->quality(reco::TrackBase::highPurity) ) {
                 return false;
