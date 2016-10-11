@@ -60,6 +60,7 @@ private:
 	edm::EDGetTokenT<int>                           centralityToken_;
 	edm::InputTag					trackTag_;
 	edm::EDGetTokenT<reco::TrackCollection>		trackToken_;
+	edm::EDGetTokenT<reco::GenParticleCollection>	trackGenToken_;
 	edm::EDGetTokenT<reco::VertexCollection>	vertexToken_;
 	edm::InputTag					fweight_;
 

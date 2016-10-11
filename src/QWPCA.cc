@@ -12,6 +12,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -34,7 +35,6 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	, maxPt_(iConfig.getUntrackedParameter<double>("maxPt", 3.0))
 	, centralityToken_( consumes<int>(iConfig.getParameter<edm::InputTag>("centrality")) )
 	, trackTag_(iConfig.getUntrackedParameter<edm::InputTag>("trackTag"))
-	, trackToken_(consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackTag")))
 	, vertexToken_( consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc")) )
 	, fweight_( iConfig.getUntrackedParameter<edm::InputTag>("fweight", std::string("NA")) )
 {
@@ -59,6 +59,12 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	} else {
 		sTrackQuality = trackUndefine;
 	}
+	if ( trackTag_.label() == "genParticles" ) {
+		trackGenToken_ = consumes<reco::GenParticleCollection>(trackTag_);
+	} else {
+		trackToken_ = consumes<reco::TrackCollection>(trackTag_);
+	}
+
 	cout << "!!! using Track cuts " << sTrackQuality << endl;
 	std::string streff = fweight_.label();
 	if ( streff == std::string("NA") ) {
@@ -492,7 +498,7 @@ void QWPCA::analyzeMC(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	// track
 	Handle< std::vector<GenParticle> > tracks;
-	iEvent.getByToken(trackToken_,tracks);
+	iEvent.getByToken(trackGenToken_,tracks);
 
 
 	for(std::vector<GenParticle>::const_iterator itTrack = tracks->begin();
