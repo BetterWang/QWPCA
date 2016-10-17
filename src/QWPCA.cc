@@ -47,8 +47,8 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	minEta_ = iConfig.getUntrackedParameter<double>("minEta", -2.4);
 	maxEta_ = iConfig.getUntrackedParameter<double>("maxEta", 2.4);
 
-	minCent_ = iConfig.getUntrackedParameter<int>("minCent", -1);
-	maxCent_ = iConfig.getUntrackedParameter<int>("maxCent", 500);
+	minCent_ = iConfig.getUntrackedParameter<int>("minCent", 0);
+	maxCent_ = iConfig.getUntrackedParameter<int>("maxCent", 200);
 
 	if ( trackTag_.label() == "hiGeneralTracks" ) {
 		sTrackQuality = HIReco;
@@ -98,7 +98,23 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 				}
 			} else if ( streff == std::string("Hydjet_eff_mult_v1.root") ) {
 				TH2D * h = (TH2D*) fEffFak->Get("rTotalEff3D_1");
-				for ( int c = 0; c < 200; c++ ) {
+				for ( int c = 0; c < 120; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_2");
+				for ( int c = 120; c < 260; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_3");
+				for ( int c = 260; c < 400; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_4");
+				for ( int c = 400; c < 800; c++ ) {
+					hEff_cbin[c] = h;
+				}
+				h = (TH2D*) fEffFak->Get("rTotalEff3D_5");
+				for ( int c = 800; c < 2000; c++ ) {
 					hEff_cbin[c] = h;
 				}
 			} else if ( streff == std::string("EffCorrectionsPixel_TT_pt_0_10_v2.root") ) {
@@ -428,9 +444,16 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	edm::Handle<int> ch;
 	iEvent.getByToken(centralityToken_,ch);
-	t.Cent = *(ch.product());
-	if ( t.Cent < 0 or t.Cent >= 200 ) {
+	int Cent = *(ch.product());
+	if ( minCent_ >= 0 and Cent < minCent_ ) {
 		return;
+	} else if ( minCent_ < 0 and Cent < -minCent_ ) {
+		Cent = -minCent_;
+	}
+	if ( maxCent_ >= 0 and Cent > maxCent_ ) {
+		return;
+	} else ( maxCent_ < 0 and Cent > -maxCent_ ) {
+		Cent = -maxCent_;
 	}
 
 	// track
@@ -450,7 +473,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		t.Phi[t.Mult] = itTrack->phi();
 
 		if ( bEff_ ) {
-			double eff = hEff_cbin[t.Cent]->GetBinContent( hEff_cbin[t.Cent]->FindBin(itTrack->eta(), itTrack->pt()) );
+			double eff = hEff_cbin[Cent]->GetBinContent( hEff_cbin[Cent]->FindBin(itTrack->eta(), itTrack->pt()) );
 			t.weight[t.Mult] = 1.0 / eff;
 		} else {
 			t.weight[t.Mult] = 1.0;
@@ -459,6 +482,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		t.Mult++;
 	}
+	t.Cent = Cent;
 //	std::cout << " t.Mult = " << t.Mult << std::endl;
 
 	return;
@@ -493,9 +517,16 @@ void QWPCA::analyzeMC(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	edm::Handle<int> ch;
 	iEvent.getByToken(centralityToken_,ch);
-	t.Cent = *(ch.product());
-	if ( t.Cent < 0 or t.Cent >= 200 ) {
+	int Cent = *(ch.product());
+	if ( minCent_ >= 0 and Cent < minCent_ ) {
 		return;
+	} else if ( minCent_ < 0 and Cent < -minCent_ ) {
+		Cent = -minCent_;
+	}
+	if ( maxCent_ >= 0 and Cent > maxCent_ ) {
+		return;
+	} else ( maxCent_ < 0 and Cent > -maxCent_ ) {
+		Cent = -maxCent_;
 	}
 
 	// track
@@ -521,9 +552,7 @@ void QWPCA::analyzeMC(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		t.Mult++;
 	}
-
-
-
+	t.Cent = Cent;
 
 	return;
 }

@@ -77,7 +77,7 @@ private:
 	int	minCent_;
 	int	maxCent_;
 
-	TH2D *	hEff_cbin[200];
+	TH2D *		hEff_cbin[2000];
 
 	QWEvent t;
 
