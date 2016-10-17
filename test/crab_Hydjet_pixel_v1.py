@@ -5,7 +5,7 @@ from httplib import HTTPException
 
 config = config()
 
-config.General.requestName = 'Hydjet_PCA_pixel_eff_v1'
+config.General.requestName = 'Hydjet_PCA_pixel_eff_v2'
 config.General.workArea = 'CrabArea'
 config.General.transferOutputs = True
 config.General.transferLogs = True
@@ -15,7 +15,7 @@ config.JobType.inputFiles = ['EffCorrectionsPixel_TT_pt_0_10_v2.root']
 config.Data.inputDataset = '/Hydjet_Quenched_MinBias_5020GeV_750/caber-RecoNewPixelTracks_EricValues_HitsCut0_758p5-c2ce7887b63de082d7f8c3fca959f536/USER'
 config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 20
+config.Data.unitsPerJob = 200
 config.Data.outLFNDirBase = '/store/group/phys_heavyions/qwang/PCA/'
 #config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/HI/Cert_262548-263757_PromptReco_HICollisions15_JSON_v2.txt'
 config.Data.publication = False

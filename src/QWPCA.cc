@@ -371,6 +371,7 @@ QWPCA::TrackQuality_Pixel(const reco::TrackCollection::const_iterator& itTrack, 
 			return false;
 		}
 		if (
+			itTrack->pt() > 2.4 and
 			itTrack->originalAlgo() != 4 and
 			itTrack->originalAlgo() != 5 and
 			itTrack->originalAlgo() != 6 and
@@ -454,6 +455,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		} else {
 			t.weight[t.Mult] = 1.0;
 		}
+		cout << itTrack->eta() << "\t" << t.weight[t.Mult] << endl;
 
 		t.Mult++;
 	}
