@@ -455,7 +455,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		} else {
 			t.weight[t.Mult] = 1.0;
 		}
-		cout << itTrack->eta() << "\t" << t.weight[t.Mult] << endl;
+//		cout << itTrack->eta() << "\t" << t.weight[t.Mult] << endl;
 
 		t.Mult++;
 	}
