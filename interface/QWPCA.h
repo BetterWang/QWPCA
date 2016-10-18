@@ -8,21 +8,6 @@
 
 
 typedef std::complex<double> Complex;
-// event structure
-const int NMAX_TRK = 10000;
-typedef struct QWEvent_ {
-	int     Cent;
-	int     Mult;
-	double  vz;
-	int     Noff;
-	double  Pt[NMAX_TRK];
-	double  Eta[NMAX_TRK];
-	double  Phi[NMAX_TRK];
-	int     Charge[NMAX_TRK];
-	double  weight[NMAX_TRK];
-	int     RunId;
-	int     EventId;
-} QWEvent;
 
 
 class QWPCA : public edm::EDAnalyzer {
@@ -41,45 +26,22 @@ private:
 	virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 	////////////////////////////////
-	void analyzeData(const edm::Event&, const edm::EventSetup&);
-	void analyzeMC(const edm::Event&, const edm::EventSetup&);
-//	int  getNoffCent(const edm::Event&, const edm::EventSetup&, int&);
 
-	bool TrackQuality_ppReco(const reco::TrackCollection::const_iterator&, const reco::VertexCollection&);
-	bool TrackQuality_HIReco(const reco::TrackCollection::const_iterator&, const reco::VertexCollection&);
-	bool TrackQuality_Pixel(const reco::TrackCollection::const_iterator&, const reco::VertexCollection&);
-	void overRide();
+		edm::InputTag					trackEta_;
+		edm::InputTag					trackPt_;
+		edm::InputTag					trackPhi_;
+		edm::InputTag					trackWeight_;
 
-	bool bGen_;
-	bool bSim_;
-	bool bEff_;
+		edm::InputTag					vertexTag_;
+		edm::InputTag					centralityTag_;
+		edm::InputTag					NoffTag_;
 
-	double minPt_;
-	double maxPt_;
+		double	minvz_, maxvz_;
+		double	mineta_, maxeta_;
+		double	minpt_, maxpt_;
 
-	edm::EDGetTokenT<int>                           centralityToken_;
-	edm::InputTag					trackTag_;
-	edm::EDGetTokenT<reco::TrackCollection>		trackToken_;
-	edm::EDGetTokenT<reco::GenParticleCollection>	trackGenToken_;
-	edm::EDGetTokenT<reco::VertexCollection>	vertexToken_;
-	edm::InputTag					fweight_;
-
-	enum	TrackCut {trackUndefine = 0, ppReco = 1, HIReco, Pixel};
-	TrackCut sTrackQuality;
-	double	dzdzerror_;
-	double	d0d0error_;
-	double	pterrorpt_;
-	double  minvz_;
-	double  maxvz_;
-	double  minEta_;
-	double  maxEta_;
-
-	int	minCent_;
-	int	maxCent_;
-
-	TH2D *		hEff_cbin[2000];
-
-	QWEvent t;
+		bool		bCent_;
+		unsigned int	nvtx_;
 
 	TTree * trV;
 	static const int NETA = 48;
@@ -87,6 +49,8 @@ private:
 	std::vector<std::complex<double>>	* pQeta3;
 	std::vector<std::complex<double>>	* pQeta4;
 	std::vector<double>			* pQetaW;
+	int	Cent;
+	int	Mult;
 };
 
 
