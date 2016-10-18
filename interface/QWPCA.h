@@ -28,19 +28,14 @@ private:
 	////////////////////////////////
 
 		edm::InputTag					trackEta_;
-		edm::InputTag					trackPt_;
 		edm::InputTag					trackPhi_;
 		edm::InputTag					trackWeight_;
 
 		edm::InputTag					vertexTag_;
 		edm::InputTag					centralityTag_;
-		edm::InputTag					NoffTag_;
 
 		double	minvz_, maxvz_;
-		double	mineta_, maxeta_;
-		double	minpt_, maxpt_;
 
-		bool		bCent_;
 		unsigned int	nvtx_;
 
 	TTree * trV;

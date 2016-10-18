@@ -29,7 +29,6 @@ using namespace std;
 
 QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	trackEta_( iConfig.getUntrackedParameter<edm::InputTag>("trackEta") ),
-	trackPt_( iConfig.getUntrackedParameter<edm::InputTag>("trackPt") ),
 	trackPhi_( iConfig.getUntrackedParameter<edm::InputTag>("trackPhi") ),
 	trackWeight_( iConfig.getUntrackedParameter<edm::InputTag>("trackWeight") ),
 	vertexTag_( iConfig.getUntrackedParameter<edm::InputTag>("vertex") ),
@@ -38,20 +37,11 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	minvz_ = iConfig.getUntrackedParameter<double>("minvz", -15.);
 	maxvz_ = iConfig.getUntrackedParameter<double>("maxvz", 15.);
 
-	mineta_ = iConfig.getUntrackedParameter<double>("mineta", -2.4);
-	maxeta_ = iConfig.getUntrackedParameter<double>("maxeta", 2.4);
-
-	minpt_ = iConfig.getUntrackedParameter<double>("minpt", 0.3);
-	maxpt_ = iConfig.getUntrackedParameter<double>("maxpt", 0.3);
-
-	bCent_ = iConfig.getUntrackedParameter<bool>("bCent", false);
-
-	cmode_ = iConfig.getUntrackedParameter<int>("cmode", 1);
 	nvtx_ = iConfig.getUntrackedParameter<int>("nvtx", 100);
 
 	consumes<reco::VertexCollection>(vertexTag_);
+	consumes<int>(centralityTag_);
 	consumes<std::vector<double> >(trackEta_);
-	consumes<std::vector<double> >(trackPt_);
 	consumes<std::vector<double> >(trackPhi_);
 	consumes<std::vector<double> >(trackWeight_);
 
@@ -76,12 +66,10 @@ void QWPCA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	using namespace reco;
 
 	Handle<std::vector<double> >	hEta;
-	Handle<std::vector<double> >	hPt;
 	Handle<std::vector<double> >	hPhi;
 	Handle<std::vector<double> >	hWeight;
 
 	iEvent.getByLabel(trackEta_,	hEta);
-	iEvent.getByLabel(trackPt_,	hPt);
 	iEvent.getByLabel(trackPhi_,	hPhi);
 	iEvent.getByLabel(trackWeight_, hWeight);
 
@@ -91,13 +79,13 @@ void QWPCA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		return;
 	}
 
-	if ( sz != hPt->size() or sz != hPhi->size() or sz != hWeight->size() ) {
+	if ( sz != hPhi->size() or sz != hWeight->size() ) {
 		cout << " --> inconsistency" << endl;
 		return;
 	}
 
 	Handle<VertexCollection> vertexCollection;
-	iEvent.getByToken(vertexToken_, vertexCollection);
+	iEvent.getByLabel(vertexTag_, vertexCollection);
 	VertexCollection recoVertices = *vertexCollection;
 	if ( recoVertices.size() < 1 ) return;
 	sort(recoVertices.begin(), recoVertices.end(), [](const reco::Vertex &a, const reco::Vertex &b){
@@ -122,12 +110,12 @@ void QWPCA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	std::vector<Complex> Qeta4(NETA, Complex(0.,0.));
 	std::vector<double>  QetaW(NETA, 0.);
 	double etabinW = 4.8 / NETA;
-	for ( int i = 0; i < sz; i++ ) {
+	for ( unsigned int i = 0; i < sz; i++ ) {
 		int ieta = ((*hEta)[i] + 2.4)/etabinW;
 		if ( ieta < 0 or ieta >= NETA ) continue;
-		Qeta2[ieta] += (*hWeight)[i] * Complex(cos(2*(*Phi)[i]), sin(2*(*Phi)[i]));
-		Qeta3[ieta] += (*hWeight)[i] * Complex(cos(3*(*Phi)[i]), sin(3*(*Phi)[i]));
-		Qeta4[ieta] += (*hWeight)[i] * Complex(cos(4*(*Phi)[i]), sin(4*(*Phi)[i]));
+		Qeta2[ieta] += (*hWeight)[i] * Complex(cos(2*(*hPhi)[i]), sin(2*(*hPhi)[i]));
+		Qeta3[ieta] += (*hWeight)[i] * Complex(cos(3*(*hPhi)[i]), sin(3*(*hPhi)[i]));
+		Qeta4[ieta] += (*hWeight)[i] * Complex(cos(4*(*hPhi)[i]), sin(4*(*hPhi)[i]));
 
 		QetaW[ieta] += (*hWeight)[i];
 	}
