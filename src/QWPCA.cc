@@ -452,7 +452,7 @@ void QWPCA::analyzeData(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	if ( maxCent_ >= 0 and Cent > maxCent_ ) {
 		return;
-	} else ( maxCent_ < 0 and Cent > -maxCent_ ) {
+	} else if ( maxCent_ < 0 and Cent > -maxCent_ ) {
 		Cent = -maxCent_;
 	}
 
@@ -525,7 +525,7 @@ void QWPCA::analyzeMC(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	if ( maxCent_ >= 0 and Cent > maxCent_ ) {
 		return;
-	} else ( maxCent_ < 0 and Cent > -maxCent_ ) {
+	} else if ( maxCent_ < 0 and Cent > -maxCent_ ) {
 		Cent = -maxCent_;
 	}
 
