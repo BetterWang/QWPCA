@@ -25,36 +25,26 @@ process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/q/qwang/work/cleanroomRun2/Ana/data/hydjet_pixel.root")
 )
 
-import HLTrigger.HLTfilters.hltHighLevel_cfi
-
-
-process.QWPCA = cms.EDAnalyzer('QWPCA'
-		, bGen = cms.untracked.bool(True)
-		, bSim = cms.untracked.bool(False)
-		, bEff = cms.untracked.bool(False)
-		, minPt = cms.untracked.double(0.3)
-		, maxPt = cms.untracked.double(3.0)
-		, centrality = cms.InputTag("centralityBin", "HFtowers")
-		, trackTag = cms.untracked.InputTag('genParticles')
-		, vertexSrc = cms.untracked.InputTag('hiSelectedVertex', "")
-#		, fweight = cms.untracked.InputTag('EffCorrectionsPixel_TT_pt_0_10_v2.root')
-		, pterrorpt = cms.untracked.double(0.1)
-		, dzdzerror = cms.untracked.double(3.0)
-		, d0d0error = cms.untracked.double(3.0)
-		, minvz = cms.untracked.double(-1.0)
-		, maxvz = cms.untracked.double(15.0)
-		, minEta = cms.untracked.double(-2.4)
-		, maxEta = cms.untracked.double(2.4)
-		, minCent = cms.untracked.int32(-1)
-		, maxCent = cms.untracked.int32(500)
-		)
 
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('pca.root')
 )
 
-process.path= cms.Path(process.QWPCA)
+process.QWPCA = cms.EDAnalyzer('QWPCA'
+		, trackEta = cms.untracked.InputTag('QWGenEvent', "eta")
+		, trackPhi = cms.untracked.InputTag('QWGenEvent', "phi")
+		, trackWeight = cms.untracked.InputTag('QWGenEvent', "weight")
+		, vertex = cms.untracked.InputTag('hiSelectedVertex', "")
+		, centrality = cms.untracked.InputTag('centralityBin', "HFtowers")
+		, minvz = cms.untracked.double(-1.0)
+		, maxvz = cms.untracked.double(15.0)
+		, nvtx = cms.untracked.int32(100)
+		)
+
+process.load('PbPb_Hydjet_GEN')
+
+process.path= cms.Path(process.makeEvent*process.QWPCA*process.vectMonW)
 
 process.schedule = cms.Schedule(
 	process.path,

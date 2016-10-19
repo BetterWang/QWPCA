@@ -5,6 +5,7 @@ PCA
 pPb
 test/*
 !test/qw*.py
+!test/PbPb*.py
 !test/crab_*.py
 !test/run*.sh
 *.pyc

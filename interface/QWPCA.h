@@ -30,8 +30,8 @@ private:
 		edm::InputTag					trackEta_;
 		edm::InputTag					trackPhi_;
 		edm::InputTag					trackWeight_;
+		edm::InputTag					vertexZ_;
 
-		edm::InputTag					vertexTag_;
 		edm::InputTag					centralityTag_;
 
 		double	minvz_, maxvz_;

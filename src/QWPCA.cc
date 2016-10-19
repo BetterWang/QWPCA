@@ -31,7 +31,7 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 	trackEta_( iConfig.getUntrackedParameter<edm::InputTag>("trackEta") ),
 	trackPhi_( iConfig.getUntrackedParameter<edm::InputTag>("trackPhi") ),
 	trackWeight_( iConfig.getUntrackedParameter<edm::InputTag>("trackWeight") ),
-	vertexTag_( iConfig.getUntrackedParameter<edm::InputTag>("vertex") ),
+	vertexZ_( iConfig.getUntrackedParameter<edm::InputTag>("vertexZ") ),
 	centralityTag_( iConfig.getUntrackedParameter<edm::InputTag>("centrality") )
 {
 	minvz_ = iConfig.getUntrackedParameter<double>("minvz", -15.);
@@ -39,11 +39,11 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 
 	nvtx_ = iConfig.getUntrackedParameter<int>("nvtx", 100);
 
-	consumes<reco::VertexCollection>(vertexTag_);
 	consumes<int>(centralityTag_);
 	consumes<std::vector<double> >(trackEta_);
 	consumes<std::vector<double> >(trackPhi_);
 	consumes<std::vector<double> >(trackWeight_);
+	consumes<std::vector<double> >(vertexZ_);
 
 	edm::Service<TFileService> fs;
 	trV = fs->make<TTree>("trV", "trV");
@@ -68,10 +68,12 @@ void QWPCA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	Handle<std::vector<double> >	hEta;
 	Handle<std::vector<double> >	hPhi;
 	Handle<std::vector<double> >	hWeight;
+	Handle<std::vector<double> >	hVz;
 
 	iEvent.getByLabel(trackEta_,	hEta);
 	iEvent.getByLabel(trackPhi_,	hPhi);
 	iEvent.getByLabel(trackWeight_, hWeight);
+	iEvent.getByLabel(vertexZ_, 	hVz);
 
 	unsigned int sz = hEta->size();
 	if ( sz == 0 ) {
@@ -84,16 +86,7 @@ void QWPCA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		return;
 	}
 
-	Handle<VertexCollection> vertexCollection;
-	iEvent.getByLabel(vertexTag_, vertexCollection);
-	VertexCollection recoVertices = *vertexCollection;
-	if ( recoVertices.size() < 1 ) return;
-	sort(recoVertices.begin(), recoVertices.end(), [](const reco::Vertex &a, const reco::Vertex &b){
-			if ( a.tracksSize() == b.tracksSize() ) return a.chi2() < b.chi2() ? true:false;
-			return a.tracksSize() > b.tracksSize() ? true:false;
-			});
-	int primaryvtx = 0;
-	double vz = recoVertices[primaryvtx].z();
+	double vz = (*hVz)[0];
 	if (fabs(vz) < minvz_ || fabs(vz) > maxvz_) {
 		return;
 	}

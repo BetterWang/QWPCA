@@ -21,8 +21,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-#        fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/q/qwang/work/cleanroomRun2/Ana/CMSSW_7_5_8_patch2/src/QWAna/QWCumuV3/test/HIMinBias_28.root")
-	fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/q/qwang/work/cleanroomRun2/Ana/data/pixeltracking_1.root")
+        fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/q/qwang/work/cleanroomRun2/Ana/data/ppReco.root")
 )
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
@@ -35,46 +34,38 @@ process.hltMB.HLTPaths = [
 process.hltMB.andOr = cms.bool(True)
 process.hltMB.throw = cms.bool(False)
 
-process.QWPCA = cms.EDAnalyzer('QWPCA'
-		, bGen = cms.untracked.bool(False)
-		, bSim = cms.untracked.bool(False)
-		, bEff = cms.untracked.bool(False)
-		, minPt = cms.untracked.double(0.3)
-		, maxPt = cms.untracked.double(3.0)
-		, centrality = cms.InputTag("centralityBin", "HFtowers")
-		, trackTag = cms.untracked.InputTag('hiGeneralAndPixelTracks')
-		, vertexSrc = cms.untracked.InputTag('hiSelectedVertex', "")
-#		, fweight = cms.untracked.InputTag('EffCorrectionsPixel_TT_pt_0_10_v2.root')
-		, pterrorpt = cms.untracked.double(0.1)
-		, dzdzerror = cms.untracked.double(3.0)
-		, d0d0error = cms.untracked.double(3.0)
-		, minvz = cms.untracked.double(-1.0)
-		, maxvz = cms.untracked.double(15.0)
-		, minEta = cms.untracked.double(-2.4)
-		, maxEta = cms.untracked.double(2.4)
-		, minCent = cms.untracked.int32(-1)
-		, maxCent = cms.untracked.int32(500)
-		)
-
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('pca.root')
 )
 
-process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
-process.centralityBin.Centrality = cms.InputTag("hiCentrality")
-process.centralityBin.centralityVariable = cms.string("HFtowers")
-
 process.load('HeavyIonsAnalysis.Configuration.collisionEventSelection_cff')
 process.clusterCompatibilityFilter.clusterPars = cms.vdouble(0.0,0.006)
+
+process.primaryVertexFilter.src = cms.InputTag("offlinePrimaryVertices")
 
 process.eventSelection = cms.Sequence(
         process.hfCoincFilter3
         + process.primaryVertexFilter
-        + process.clusterCompatibilityFilter
+#        + process.clusterCompatibilityFilter
 )
 
-process.path= cms.Path(process.hltMB*process.eventSelection*process.centralityBin*process.QWPCA)
+
+process.QWPCA = cms.EDAnalyzer('QWPCA'
+		, trackEta = cms.untracked.InputTag('QWEvent', "eta")
+		, trackPhi = cms.untracked.InputTag('QWEvent', "phi")
+		, trackWeight = cms.untracked.InputTag('QWEvent', "weight")
+		, vertexZ = cms.untracked.InputTag('QWEvent', "vz")
+		, centrality = cms.untracked.InputTag('Noff', "")
+		, minvz = cms.untracked.double(-1.0)
+		, maxvz = cms.untracked.double(15.0)
+		, nvtx = cms.untracked.int32(100)
+		)
+
+process.load('PbPb_HIMB5_ppReco_eff')
+
+#process.path= cms.Path(process.eventSelection*process.centralityBin*process.QWEvent*process.QWPCA*process.histNoff*process.vectPhi*process.vectEta*process.vectPt*process.vectPhiW*process.vectEtaW*process.vectPtW)
+process.path= cms.Path(process.eventSelection*process.makeEvent*process.QWPCA*process.vectMonW)
 
 process.schedule = cms.Schedule(
 	process.path,
