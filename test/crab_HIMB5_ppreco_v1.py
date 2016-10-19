@@ -5,12 +5,12 @@ from httplib import HTTPException
 
 config = config()
 
-config.General.requestName = 'HIMB5_PCA_ppReco_eff_v3'
+config.General.requestName = 'HIMB5_PCA_ppReco_eff_noff_v4'
 config.General.workArea = 'CrabArea'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = 'qw_PbPb15_HIMB5_ppReco_v1.py'
+config.JobType.psetName = 'qw_PbPb15_HIMB5_ppReco_eff_noff_v1.py'
 config.JobType.inputFiles = ['Hydjet_eff_mult_v1.root']
 config.Data.inputDataset = '/HIMinimumBias5/HIRun2015-02May2016-v1/AOD'
 #config.Data.inputDBS = 'phys03'
