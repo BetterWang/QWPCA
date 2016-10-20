@@ -39,11 +39,11 @@ QWPCA::QWPCA(const edm::ParameterSet& iConfig):
 
 	nvtx_ = iConfig.getUntrackedParameter<int>("nvtx", 100);
 
-	consumes<int>(centralityTag_);
-	consumes<std::vector<double> >(trackEta_);
-	consumes<std::vector<double> >(trackPhi_);
-	consumes<std::vector<double> >(trackWeight_);
-	consumes<std::vector<double> >(vertexZ_);
+//	consumes<int>(centralityTag_);
+//	consumes<std::vector<double> >(trackEta_);
+//	consumes<std::vector<double> >(trackPhi_);
+//	consumes<std::vector<double> >(trackWeight_);
+//	consumes<std::vector<double> >(vertexZ_);
 
 	edm::Service<TFileService> fs;
 	trV = fs->make<TTree>("trV", "trV");
