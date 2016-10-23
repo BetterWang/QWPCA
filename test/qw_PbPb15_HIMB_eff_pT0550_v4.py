@@ -21,7 +21,8 @@ process.options = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/q/qwang/work/cleanroomRun2/Ana/data/ppReco.root")
+#        fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/q/qwang/work/cleanroomRun2/Ana/CMSSW_7_5_8_patch2/src/QWAna/QWCumuV3/test/HIMinBias_28.root")
+	fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/q/qwang/work/cleanroomRun2/Ana/data/pixeltracking_1.root")
 )
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
@@ -34,7 +35,6 @@ process.hltMB.HLTPaths = [
 process.hltMB.andOr = cms.bool(True)
 process.hltMB.throw = cms.bool(False)
 
-
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('pca.root')
 )
@@ -42,40 +42,28 @@ process.TFileService = cms.Service("TFileService",
 process.load('HeavyIonsAnalysis.Configuration.collisionEventSelection_cff')
 process.clusterCompatibilityFilter.clusterPars = cms.vdouble(0.0,0.006)
 
-process.primaryVertexFilter.src = cms.InputTag("offlinePrimaryVertices")
-
 process.eventSelection = cms.Sequence(
         process.hfCoincFilter3
         + process.primaryVertexFilter
-#        + process.clusterCompatibilityFilter
+        + process.clusterCompatibilityFilter
 )
-
 
 process.QWPCA = cms.EDAnalyzer('QWPCA'
 		, trackEta = cms.untracked.InputTag('QWEvent', "eta")
 		, trackPhi = cms.untracked.InputTag('QWEvent', "phi")
 		, trackWeight = cms.untracked.InputTag('QWEvent', "weight")
 		, vertexZ = cms.untracked.InputTag('QWEvent', "vz")
-		, centrality = cms.untracked.InputTag('Noff', "")
+		, centrality = cms.untracked.InputTag('centralityBin', "HFtowers")
 		, minvz = cms.untracked.double(-1.0)
 		, maxvz = cms.untracked.double(15.0)
 		, nvtx = cms.untracked.int32(100)
 		)
 
-process.load('PbPb_HIMB5_ppReco_eff')
+process.load('PbPb_HIMB2_pixel_eff')
 process.QWEvent.ptMin = cms.untracked.double(0.5)
 process.QWEvent.ptMax = cms.untracked.double(5.0)
 
-process.load('RecoHI.HiCentralityAlgos.CentralityFilter_cfi')
-process.ppRecoCentFilter = process.centralityFilter.clone(
-		selectedBins = cms.vint32(
-			60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179),
-		BinLabel = cms.InputTag("centralityBins")
-		)
-
-
-#process.path= cms.Path(process.eventSelection*process.centralityBin*process.QWEvent*process.QWPCA*process.histNoff*process.vectPhi*process.vectEta*process.vectPt*process.vectPhiW*process.vectEtaW*process.vectPtW)
-process.path= cms.Path(process.eventSelection*process.makeEvent*process.ppRecoCentFilter*process.QWPCA*process.vectMonW)
+process.path= cms.Path(process.hltMB*process.eventSelection*process.makeEvent*process.QWPCA*process.vectMonW)
 
 process.schedule = cms.Schedule(
 	process.path,

@@ -5,17 +5,17 @@ from httplib import HTTPException
 
 config = config()
 
-config.General.requestName = 'HIMB5_PCA_ppReco_eff_noff_v5'
+config.General.requestName = 'HIMB2_PCA_pixel_eff_cent_v9'
 config.General.workArea = 'CrabArea'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = 'qw_PbPb15_HIMB5_ppReco_eff_noff_v1.py'
-config.JobType.inputFiles = ['Hydjet_eff_mult_v1.root']
-config.Data.inputDataset = '/HIMinimumBias5/HIRun2015-02May2016-v1/AOD'
+config.JobType.psetName = 'qw_PbPb15_HIMB_eff_v4.py'
+config.JobType.inputFiles = ['EffCorrectionsPixel_TT_pt_0_10_v2.root']
+config.Data.inputDataset = '/HIMinimumBias2/HIRun2015-25Aug2016-v1/AOD'
 #config.Data.inputDBS = 'phys03'
 config.Data.splitting = 'LumiBased'
-config.Data.unitsPerJob = 20
+config.Data.unitsPerJob = 30
 config.Data.outLFNDirBase = '/store/group/phys_heavyions/qwang/PCA/'
 config.Data.lumiMask = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/HI/Cert_262548-263757_PromptReco_HICollisions15_JSON_v2.txt'
 config.Data.publication = False

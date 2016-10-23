@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+centralityBins = cms.EDProducer("QWPPRecoCentBinProducer")
+
 Noff = cms.EDProducer("QWNtrkOfflineProducer",
                 vertexSrc = cms.untracked.InputTag("offlinePrimaryVertices"),
                 trackSrc  = cms.untracked.InputTag("generalTracks")
@@ -20,7 +22,7 @@ QWEvent = cms.EDProducer("QWEventProducer"
 		, Etamax = cms.untracked.double(2.4)
                 )
 
-makeEvent = cms.Sequence(Noff*QWEvent)
+makeEvent = cms.Sequence(centralityBins*Noff*QWEvent)
 
 # monitoring
 histNoff = cms.EDAnalyzer('QWHistAnalyzer',
@@ -30,6 +32,12 @@ histNoff = cms.EDAnalyzer('QWHistAnalyzer',
 		end = cms.untracked.double(5000),
 		)
 
+histCentBin = cms.EDAnalyzer('QWHistAnalyzer',
+		src = cms.untracked.InputTag("centralityBins"),
+		Nbins = cms.untracked.int32(200),
+		start = cms.untracked.double(0),
+		end = cms.untracked.double(200),
+		)
 vectPhi = cms.EDAnalyzer('QWVectorAnalyzer',
 		src = cms.untracked.InputTag("QWEvent", "phi"),
 		hNbins = cms.untracked.int32(5000),
@@ -63,5 +71,5 @@ vectEtaW = vectEta.clone( srcW = cms.untracked.InputTag("QWEvent", "weight") )
 vectPtW = vectPt.clone( srcW = cms.untracked.InputTag("QWEvent", "weight") )
 vectPhiW = vectPhi.clone( srcW = cms.untracked.InputTag("QWEvent", "weight") )
 
-vectMon = cms.Sequence(histNoff*vectPhi*vectPt*vectEta)
-vectMonW = cms.Sequence(histNoff*vectPhi*vectPt*vectEta*vectPhiW*vectPtW*vectEtaW)
+vectMon = cms.Sequence(histNoff*histCentBin*vectPhi*vectPt*vectEta)
+vectMonW = cms.Sequence(histNoff*histCentBin*vectPhi*vectPt*vectEta*vectPhiW*vectPtW*vectEtaW)

@@ -62,7 +62,7 @@ process.QWPCA = cms.EDAnalyzer('QWPCA'
 		, nvtx = cms.untracked.int32(100)
 		)
 
-process.load('PbPb_HIMB5_ppReco_eff')
+process.load('PbPb_HIMB5_ppReco_noeff')
 process.QWEvent.ptMin = cms.untracked.double(0.5)
 process.QWEvent.ptMax = cms.untracked.double(5.0)
 
